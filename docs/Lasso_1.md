@@ -1,6 +1,6 @@
 ---
-title: "Lasso_1"
-output: html_document
+title: "Tesi Lasso"
+layout: default
 ---
 
 ```{r setup, include=FALSE}
