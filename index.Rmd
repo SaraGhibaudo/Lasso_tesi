@@ -1,6 +1,8 @@
 ---
 title: "Tutorial Regressione Lasso"
-layout: default
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
 ---
 
 ```{r setup, include=FALSE}
