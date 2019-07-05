@@ -184,7 +184,11 @@ abline(v=log(fit_lasso$lambda.min))
 
 ## Calcolo dei p-value per Lasso
 
+<<<<<<< HEAD
 Per calcolare i p-value dei coefficienti della regressione Lasso si procede nel modo seguente:
+=======
+Per calcolare i p-value della regressione Lasso si procede nel modo seguente:
+>>>>>>> 5e6c3a4bb5bb68b6a0749241edd54522dff5f3d4
 
 1. Definire il numero di gradi di libertà (n-1) e trasformare tutte le variabili in numeriche
 
