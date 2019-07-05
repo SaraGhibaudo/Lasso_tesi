@@ -1,0 +1,181 @@
+---
+title: "Lasso_2"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+# Tutorial riguardante le modalità di selezione di variabili relative a dati biomedici
+
+I dati biomedici analizzati come esempio riguardano il trapianto di fegato; dal dataset iniziale contente 178 variabili ne sono state selezionate 22 in base a conoscenze mediche. Al termine di questa procedura verranno selezionate solo quelle effettivamente collegate con la variabile risposta che indica se il trapianto è avvenuto con successo o no.
+
+
+## Analisi Lasso
+
+Per eseguire un'analisi lasso si procede nel seguente modo:
+
+1. Installare i pacchetti "glmnet", "lars", "covTest" necessari per questo tipo di analisi e altri pacchetti utili per rendere interpretabile il codice. 
+Per installare i pacchetti si usa la funzione "pacman" che, nel caso in cui non fossero ancora presenti, carica i paccheti richiesti.
+
+```{r, echo=F, message=FALSE, warning=FALSE}
+if(!require(pacman)) install.packages('pacman', dependencies = T)
+
+pacman::p_load(glmnet,
+       lars,
+       covTest,
+       ElemStatLearn,
+       tableone,
+       magrittr,
+       knitr,
+       dplyr,
+       here,
+       readxl,
+       tidyverse)
+```
+
+
+
+2. Caricare i dati su R utilizzando la procedura seguente che carica un file exel attraverso la funzione "read_exel". Le varibili qualitative con output "yes" e "no" sono state trasformate in varibili con output nuerici 0 e 1 grazie a "mutate" e, attraverso le funzioni "as.numeric" e "as.factor", si è specificato quali sono continue e quali categoriche.
+
+```{r, warning=FALSE}
+wdir <- here::here()
+input_data <- file.path(wdir, 'data')
+
+db <- read_excel(file.path(input_data,'liver_forThesis.xlsx'))
+
+varnames <- c('Sex',
+              'RangoOLT',
+              'BMI',
+              'MeldOLT',
+              'CreaOLTreal',
+              'Dialysis',
+              'PrevAbdSurg',
+              'LifeSupp',
+              'Ascites',
+              'PortalThromb',
+              'HCC',
+              'AgeD',
+              'BMID',
+              'SteaMacro',
+              'D-MELD',
+              'BAR',
+              'DRI',
+              'CIT',
+              'RWIT',
+              'GraftWeight',
+              'GRWR',
+              'EAD_Olthoff')
+
+db <- db %>% 
+  dplyr::select(varnames)
+
+my_function_01 <- function(x){
+  ifelse(x=='no',0,ifelse(x=='yes',1,NA))
+}
+
+varno <- c('Dialysis','PrevAbdSurg','LifeSupp','Ascites','PortalThromb', 'EAD_Olthoff', 'HCC')
+
+db <- db %>% 
+  mutate_at(vars(varno), funs(my_function_01))
+db<-na.omit(db)
+
+
+db$BMID<-as.numeric(db$BMID)
+db$SteaMacro<-as.numeric(db$SteaMacro)
+db$CIT<-as.numeric(db$CIT)
+db$RWIT<-as.numeric(db$RWIT)
+db$Dialysis<-as.factor(db$Dialysis)
+db$PrevAbdSurg<-as.factor(db$PrevAbdSurg)
+db$LifeSupp<-as.factor(db$LifeSupp)
+db$Ascites<-as.factor(db$Ascites)
+db$PortalThromb<-as.factor(db$PortalThromb)
+db$EAD_Olthoff<-as.factor(db$EAD_Olthoff)
+db$HCC<-as.factor(db$HCC)
+db$Sex<-as.factor(db$Sex)
+db$RangoOLT<-as.factor(db$RangoOLT)
+```
+
+
+3. Analisi dei dati tramite la funzione "CreateTableOne" i cui argomenti sono vars (dove si specificano le variabili da analizzare e che, in questo esempio, sono quelle del database varnames creato prima) e data (il dataframe in cui si trovano le variabili).
+
+```{r}
+CreateTableOne(vars = varnames,
+              data = db) %>%
+print(printToggle=F) %>% kable()
+db<-na.omit(db)
+```
+
+
+Con questo comando è possibile inserire nella propria analisi una tabella contenente media e deviazione standard (sd) per le variabili continue e frequenza assoluta e percentuale per quelle categoriche.
+
+
+4. Definire la variabile di output y e i predittori x
+
+```{r}
+y <- db$EAD_Olthoff 
+x1<-(db[,1:(ncol(db)-1)])
+```
+ 
+Nell'esempio la variabile di output y è EAD_Olthoff grazie alla quale si capisce se il trapianto è avvenuto con successo. I predittori sono raccolti nella matrice x i cui valori sono scalati e centrati attraverso la funzione "scale".
+
+```{r}
+x <- model.matrix(y~. ,data = x1)
+z=scale(x,FALSE,FALSE)
+```
+
+
+5. Selezionare i valori di lambda attraverso la cross-validation mediante la funzione "cv.glmnet" il cui output è il seguente:
+-	Lambda: valore di lambda usato nell’adattamento
+-	Cvm: mean cross-validation error, vettore di lunghezza length(lambda)
+-	Cvsd: stima di SE (Standard Error) di cvm
+-	Cvup: upper curve = cvm + cvsd
+-	Cvlo: lower cuve = cvm – cvsd
+-	Nzero:  numero di coefficienti non nulli per ogni lambda
+-	Name: tipo di misura
+-	Glmnet.fit: un glmnet adattato per tutti i dati
+-	Lambda.min: valore di lambda che restituisce il minimo cvm
+-	Lambda.1se: il più grande lambda tale che l’errore è entro 1 SE del minimo
+
+```{r}
+set.seed(1230)
+fit_lasso<-cv.glmnet(z,y,family="binomial")
+fit_lasso
+```
+
+
+6. Stimare i coefficienti di regressione dei predittori con parametro di regolarizzazione (s) lambda=lambda.1se (il valore di lambda entro 1 SE).
+
+```{r}
+coef(fit_lasso, s=fit_lasso$lambda.1se)
+```
+
+Con il comando "coef" estraggo i coefficeinti della regressione. Si può notare che, grazie all'analisi Lasso, soltanto la variabile SteaMacro ha coefficiente non nullo, ciò significa che solo questa variabile può essere considerata importante nella nostra analisi.
+Se, invece, si stimano i coefficienti di regressione dei predittori con parametro di regolarizzazione lambda=lambda.min (il minimo valore di lambda) i valori cambiano.
+
+```{r}
+coef(fit_lasso, s=fit_lasso$lambda.min)
+```
+
+Con questo valore di lambda, infatti, ci sono più coefficienti non nulli e quindi non è solo SteaMacro che influenza la variabile di outcome.
+
+7. Stampare il MSE (Mean Square Error) per i valori di lambda: 
+
+```{r}
+plot(fit_lasso)
+```
+
+Questo grafico disegna la curva di cross-validation (puntini rossi), il valore di standard deviation più alto e più basso in base ai valori di lambda (barre di errori) e due linee verticali tratteggiate che rappresentano i valori di lambda.min e lambda.1se.
+
+
+8. Stampare i coefficienti per diversi valori di lambda, la funzione "abline" aggiunge due linee in corrispondenza di lambda.min e lambda.1se.
+
+```{r}
+RegCoef=glmnet(z,y,family = "binomial",alpha = 1)
+plot(RegCoef, xvar="lambda", lwd=1.8 )
+abline(v=log(fit_lasso$lambda.1se))
+abline(v=log(fit_lasso$lambda.min))
+```
+
