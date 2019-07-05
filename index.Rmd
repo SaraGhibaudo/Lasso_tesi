@@ -1,8 +1,6 @@
 ---
 title: "Tutorial Regressione Lasso"
-site: bookdown::bookdown_site
-output: bookdown::gitbook 
-documentclass: book
+output: html_document
 ---
 
 ```{r setup, include=FALSE}
@@ -244,7 +242,7 @@ cat('null distribution = ', a$null.dist)
 ```
 
 # Crediti
-## Metodo Lasso per dati biomedici: utilizzo di GitHUb come strumento di riproducibilità dell'analisi
+## Metodo Lasso per dati biomedici: utilizzo di GitHub come strumento di riproducibilità dell'analisi
 
 Università degli Studio di Torino
 
