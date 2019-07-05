@@ -184,9 +184,9 @@ abline(v=log(fit_lasso$lambda.min))
 
  
 
-## Calcolo del p-value per lambda
+## Calcolo dei p-value per Lasso
 
-Per calcolare il p-value del parametro di regolarizzazione lambda si procede nel modo seguente:
+Per calcolare i p-value della regressione Lasso si procede nel modo seguente:
 
 1. Definire il numero di gradi di libertà (n-1) e trasformare tutte le variabili in numeriche
 
