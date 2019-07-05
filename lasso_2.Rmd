@@ -1,6 +1,11 @@
 ---
+<<<<<<< HEAD:lasso_2.Rmd
 title: "Lasso_2"
 output: html_document
+=======
+title: "Tesi Lasso"
+layout: default
+>>>>>>> c4740409b75f8a2dfe15ae28d1089fdbfe54aba1:docs/index.md
 ---
 
 ```{r setup, include=FALSE}

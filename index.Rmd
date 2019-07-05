@@ -1,5 +1,5 @@
 ---
-title: "Lasso_1"
+title: "Tutorial Regressione Lasso"
 output: html_document
 ---
 
@@ -17,7 +17,8 @@ I dati biomedici analizzati come esempio riguardano il trapianto di fegato; dal 
 Per eseguire un'analisi lasso si procede nel seguente modo:
 
 1. Installare i pacchetti "glmnet", "lars", "covTest" necessari per questo tipo di analisi e altri pacchetti utili per rendere interpretabile il codice. 
-Per installare i pacchetti si usa la funzione "pacman" che, nel caso in cui non fossero ancora presenti, carica i paccheti richiesti.
+Per installare i pacchetti si usa la funzione "pacman" che, nel caso in cui non fossero ancora presenti, installa e carica i paccheti richiesti.
+
 
 ```{r, echo=F, message=F, warning=FALSE}
 if(!require(pacman)) install.packages('pacman', dependencies = T)
