@@ -1,7 +1,7 @@
 ---
 title: "Tutorial Regressione Lasso"
 site: bookdown::bookdown_site
-output: bookdown::gitbook
+output: bookdown::gitbook 
 documentclass: book
 ---
 
@@ -184,9 +184,9 @@ abline(v=log(fit_lasso$lambda.min))
 
  
 
-## Calcolo del p-value per lambda
+## Calcolo dei p-value per Lasso
 
-Per calcolare il p-value del parametro di regolarizzazione lambda si procede nel modo seguente:
+Per calcolare i p-value dei coefficienti della regressione Lasso si procede nel modo seguente:
 
 1. Definire il numero di gradi di libertà (n-1) e trasformare tutte le variabili in numeriche
 
@@ -237,7 +237,24 @@ Analizzando i p-value si può notare che l'unico significativo è quello di Stea
 cat('sigma = ',a$sigma)
 
 ```
+
+
 ```{r, echo=FALSE}
 cat('null distribution = ', a$null.dist)
 ```
 
+# Crediti
+## Metodo Lasso per dati biomedici: utilizzo di GitHUb come strumento di riproducibilità dell'analisi
+
+Università degli Studio di Torino
+
+Dipartimento di Matematica Giuseppe Peano
+
+Scuola di Scienze della Natura
+
+Corso di Laurea in Matematica
+
+Tesi di Laurea Triennale
+
+Relatrici: Maria Teresa Giraudo e Paola Berchialla
+Candidata: Sara Ghibaudo
